@@ -1,0 +1,5 @@
+__pycache__/
+vectordb/
+.env
+test_output.json
+*.pyc
