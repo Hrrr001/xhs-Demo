@@ -9,59 +9,59 @@
 - **合规自动检测**：16条规则覆盖广告法违禁词、行业红线、平台导流规范
 - **知识库管理**：15条种子爆款文案，支持语义检索
 
-## 快速开始
-
-### 1. 安装依赖
+## 本地运行
 
 ```bash
 pip install -r requirements.txt
+cp .env.example .env   # 编辑填入 LLM_API_KEY
+python main.py         # http://localhost:7860
 ```
 
-### 2. 配置 API Key
+## 部署到 Hugging Face Spaces
+
+### 1. 创建 Space
+
+打开 https://huggingface.co/new-space ，SDK 选 **Gradio**，Hardware 选 **CPU (free)**。
+
+### 2. 设置 API Key
+
+在 Space 的 **Settings > Secrets** 中添加：
+
+| Name | Value |
+|------|-------|
+| `LLM_API_KEY` | 你的智谱AI Key |
+
+### 3. 推送代码
 
 ```bash
-cp .env.example .env
-# 编辑 .env，填入你的 LLM API Key
+git clone https://huggingface.co/spaces/你的用户名/你的Space名
+cd 你的Space名
+# 把本项目所有文件复制进去（.env 和 vectordb/ 不需要）
+git add . && git commit -m "deploy" && git push
 ```
 
-推荐使用 [硅基流动](https://siliconflow.cn) 免费额度：
-```
-LLM_API_KEY=sk-xxxxx
-LLM_BASE_URL=https://api.siliconflow.cn/v1
-LLM_MODEL=deepseek-ai/DeepSeek-V3
-```
-
-也支持 [DeepSeek 开放平台](https://platform.deepseek.com)。
-
-### 3. 启动
-
-```bash
-python main.py
-```
-
-浏览器访问 `http://localhost:7860`
+推送后 HF Spaces 自动构建，约 2-3 分钟可访问。
 
 ## 项目结构
 
 ```
-xiaohongshu-tool/
-├── main.py           # Gradio 界面入口
-├── generator.py      # LLM 内容生成 + 爆款评分引擎
-├── compliance.py     # 合规规则引擎
-├── rag_engine.py     # ChromaDB 向量检索
-├── config.py         # 全局配置
-├── rules.yaml        # 合规规则（16条，可热更新）
-├── data/
-│   └── seed_posts.jsonl  # 15条种子爆款文案
-└── vectordb/         # ChromaDB 持久化目录
+├── app.py             # HF Spaces 入口
+├── main.py            # Gradio 界面
+├── generator.py       # LLM 生成 + 评分引擎
+├── compliance.py      # 合规规则引擎
+├── rag_engine.py      # ChromaDB 语义检索
+├── config.py          # 全局配置
+├── rules.yaml         # 合规规则（16条）
+├── data/seed_posts.jsonl  # 15条种子爆款文案
+└── requirements.txt
 ```
 
 ## 技术栈
 
 | 组件 | 技术 |
 |------|------|
-| UI | Gradio 4.x |
+| UI | Gradio 6.x |
 | 向量库 | ChromaDB |
-| Embedding | BAAI/bge-small-zh-v1.5（本地免费） |
-| LLM | 硅基流动 / DeepSeek（OpenAI 兼容） |
-| 合规规则 | YAML + 正则匹配 |
+| Embedding | BAAI/bge-small-zh-v1.5（本地） |
+| LLM | 智谱AI GLM-4-Flash（免费） |
+| 合规规则 | YAML + 正则 |
